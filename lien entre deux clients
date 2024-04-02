@@ -1,0 +1,62 @@
+Pour que deux clients s'envoient des messages via le serveur, vous devez développer deux scripts clients distincts qui se connectent au serveur et interagissent entre eux en envoyant et recevant des messages. Voici comment vous pouvez procéder :
+1. Développer le code client :
+
+Créez deux scripts clients distincts, par exemple client1.py et client2.py, en suivant les étapes précédentes pour créer un socket client, se connecter au serveur et envoyer/recevoir des messages.
+2. Établir la connexion au serveur :
+
+Dans chaque script client, connectez-vous au même serveur en utilisant la même adresse IP et le même port. Par exemple :
+
+SERVER_HOST = '127.0.0.1'  # Adresse IP du serveur
+SERVER_PORT = 55555         # Port du serveur
+
+3. Envoyer et recevoir des messages :
+
+Une fois connectés au serveur, les clients peuvent envoyer des messages au serveur, qui les diffusera ensuite à tous les autres clients connectés.
+
+    Dans client1.py, vous pouvez envoyer un message au serveur en utilisant client_socket.send() puis recevoir les messages des autres clients via client_socket.recv().
+    Dans client2.py, vous pouvez également envoyer un message au serveur avec client_socket.send() puis recevoir les messages des autres clients via client_socket.recv().
+
+4. Fermer la connexion :
+
+N'oubliez pas de fermer la connexion avec le serveur une fois que vous avez terminé d'envoyer et de recevoir des messages.
+Exemple :
+
+Voici un exemple simplifié pour client1.py :
+
+import socket
+
+SERVER_HOST = '127.0.0.1'  # Adresse IP du serveur
+SERVER_PORT = 55555         # Port du serveur
+
+client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+client_socket.connect((SERVER_HOST, SERVER_PORT))
+
+# Envoyer un message au serveur
+client_socket.send(b"Hello from Client 1!")
+
+# Recevoir des messages du serveur
+data = client_socket.recv(1024)
+print("Received from server:", data.decode('utf-8'))
+
+client_socket.close()
+
+Et voici un exemple pour client2.py :
+
+import socket
+
+SERVER_HOST = '127.0.0.1'  # Adresse IP du serveur
+SERVER_PORT = 55555         # Port du serveur
+
+client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+client_socket.connect((SERVER_HOST, SERVER_PORT))
+
+# Envoyer un message au serveur
+client_socket.send(b"Hello from Client 2!")
+
+# Recevoir des messages du serveur
+data = client_socket.recv(1024)
+print("Received from server:", data.decode('utf-8'))
+
+client_socket.close()
+Exécutez ces scripts clients dans deux terminaux ou instances Python distinctes pour simuler deux clients interagissant avec le serveur.
+Assurez-vous que le serveur est également en cours d'exécution pour gérer les connexions et la communication entre les clients.
