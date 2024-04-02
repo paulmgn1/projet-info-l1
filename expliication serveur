@@ -1,0 +1,26 @@
+Pour configurer le code du serveur que j'ai fourni précédemment, vous devez prendre quelques mesures pour le rendre opérationnel. Voici comment vous pouvez procéder :
+Configuration du serveur :
+
+    Choix de l'environnement de développement :
+        Choisissez votre environnement de développement préféré. Vous pouvez utiliser un éditeur de texte simple comme VSCode, ou des IDE comme PyCharm, Sublime Text, etc.
+
+    Création d'un nouveau fichier Python :
+        Créez un nouveau fichier Python, par exemple server.py, dans votre environnement de développement.
+
+    Copier le code du serveur :
+        Copiez le code du serveur que j'ai fourni précédemment dans le fichier server.py.
+
+    Personnalisation des paramètres :
+        Vous pouvez personnaliser certains paramètres tels que l'adresse IP (HOST) et le port (PORT) sur lesquels le serveur écoutera les connexions entrantes. Assurez-vous de les configurer selon vos besoins.
+
+    Enregistrement du fichier :
+        Enregistrez le fichier server.py une fois que vous avez effectué toutes les modifications nécessaires.
+
+    Exécution du serveur :
+        Ouvrez un terminal ou une ligne de commande.
+        Naviguez vers le répertoire où se trouve votre fichier server.py.
+        Exécutez le serveur en utilisant la commande python server.py (ou python3 server.py selon la configuration de votre système).
+
+Une fois que le serveur est en cours d'exécution, il devrait commencer à écouter les connexions entrantes sur l'adresse et le port spécifiés. Vous pouvez alors créer des clients pour se connecter au serveur et commencer à envoyer des messages.
+
+Assurez-vous de garder le serveur en cours d'exécution tant que vous voulez que les clients puissent se connecter et échanger des messages. Si vous fermez le serveur, les connexions des clients seront interrompues.
