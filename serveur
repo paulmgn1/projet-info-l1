@@ -1,32 +1,53 @@
 import socket
 import threading
+from Crypto.Cipher import AES
+from Crypto.Util.Padding import pad, unpad
 
 # Adresse et port du serveur
 HOST = '127.0.0.1'
 PORT = 55555
 
+# Clé de chiffrement AES (16, 24, ou 32 bytes)
+KEY = b'mon_secret_key_16'
+
 # Liste pour stocker les connexions clientes
 clients = []
+
+# Fonction de chiffrement AES
+def encrypt(message):
+    cipher = AES.new(KEY, AES.MODE_CBC)
+    ct_bytes = cipher.encrypt(pad(message.encode('utf-8'), AES.block_size))
+    iv = cipher.iv
+    return iv + ct_bytes
+
+# Fonction de déchiffrement AES
+def decrypt(ciphertext):
+    iv = ciphertext[:AES.block_size]
+    cipher = AES.new(KEY, AES.MODE_CBC, iv=iv)
+    pt = unpad(cipher.decrypt(ciphertext[AES.block_size:]), AES.block_size)
+    return pt.decode('utf-8')
 
 # Fonction de gestion des connexions clientes
 def handle_client(client_socket, client_address):
     print(f"[NEW CONNECTION] {client_address} connected.")
 
     while True:
-        # Recevoir les données du client
-        message = client_socket.recv(1024).decode('utf-8')
-
-        # Vérifier si le client a fermé la connexion
-        if not message:
+        # Recevoir les données du client et les déchiffrer
+        ciphertext = client_socket.recv(1024)
+        if not ciphertext:
             print(f"[DISCONNECTED] {client_address} disconnected.")
             clients.remove(client_socket)
             client_socket.close()
             break
 
-        # Envoyer le message à tous les autres clients connectés
+        message = decrypt(ciphertext)
+        print(f"[{client_address}] {message}")
+
+        # Envoyer le message à tous les autres clients connectés (chiffré)
+        ciphertext = encrypt(message)
         for c in clients:
             if c != client_socket:
-                c.send(message.encode('utf-8'))
+                c.send(ciphertext)
 
 # Fonction principale
 def main():
