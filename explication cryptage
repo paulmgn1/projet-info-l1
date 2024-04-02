@@ -1,0 +1,40 @@
+Assurez-vous que vous avez la bibliothèque PyCryptodome installée. Vous pouvez l'installer en utilisant pip :
+pip install pycryptodome
+
+
+
+Assurez-vous que les modules nécessaires sont importés dans votre fichier Python :
+from Crypto.Cipher import AES
+from Crypto.Random import get_random_bytes
+from Crypto.Util.Padding import pad, unpad
+
+
+
+Définissez une clé de chiffrement AES. Dans l'exemple, une clé de 16 bytes est utilisée :
+KEY = b'mon_secret_key_16'
+
+
+
+Définissez des fonctions pour chiffrer et déchiffrer les messages avec AES :
+def encrypt(message):
+    cipher = AES.new(KEY, AES.MODE_CBC, iv=get_random_bytes(AES.block_size))
+    ciphertext = cipher.encrypt(pad(message.encode('utf-8'), AES.block_size))
+    return cipher.iv + ciphertext
+
+def decrypt(ciphertext):
+    iv = ciphertext[:AES.block_size]
+    cipher = AES.new(KEY, AES.MODE_CBC, iv=iv)
+    plaintext = unpad(cipher.decrypt(ciphertext[AES.block_size:]), AES.block_size)
+    return plaintext.decode('utf-8')
+
+
+
+Utilisez ces fonctions pour chiffrer et déchiffrer les messages avant de les envoyer et après les avoir reçus :
+# Pour chiffrer un message avant de l'envoyer :
+ciphertext = encrypt(message)
+
+# Pour déchiffrer un message reçu :
+plaintext = decrypt(ciphertext)
+
+
+
