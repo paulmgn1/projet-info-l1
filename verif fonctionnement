@@ -1,0 +1,30 @@
+Pour tester le code du serveur que j'ai fourni, vous pouvez suivre ces étapes :
+1. Exécution du serveur :
+
+    Assurez-vous que vous avez enregistré le code du serveur dans un fichier Python, par exemple server.py.
+    Ouvrez un terminal ou une invite de commande.
+    Naviguez jusqu'au répertoire où se trouve votre fichier server.py.
+    Exécutez le serveur en utilisant la commande suivante :
+
+python server.py
+
+Cela démarrera le serveur, qui commencera à écouter les connexions entrantes sur l'adresse et le port spécifiés (par défaut, 127.0.0.1:55555).
+2. Connexion des clients :
+
+    Créez des clients pour se connecter au serveur. Vous pouvez créer des clients en utilisant un autre terminal ou en exécutant des scripts de clients dans d'autres fenêtres ou instances de votre environnement de développement.
+
+3. Test de la communication :
+
+    Une fois que les clients sont connectés, ils peuvent commencer à envoyer des messages au serveur.
+    Les messages envoyés par un client devraient être reçus par tous les autres clients connectés, car le serveur diffuse les messages à tous les clients connectés.
+
+4. Vérification des messages chiffrés :
+
+    Vous pouvez vérifier que les messages sont chiffrés en examinant les données envoyées sur le réseau. Cependant, gardez à l'esprit que ces données chiffrées ne seront pas lisibles à l'œil nu, car elles sont cryptées à l'aide d'AES.
+
+5. Déconnexion :
+
+    Vous pouvez tester la déconnexion des clients en fermant les connexions client ou en arrêtant les clients.
+    Le serveur devrait gérer la déconnexion des clients et mettre à jour la liste des clients connectés en conséquence.
+
+Assurez-vous de tester différentes interactions et cas d'utilisation pour vous assurer que le serveur fonctionne correctement selon vos besoins. Vous pouvez également implémenter des clients pour tester la communication bidirectionnelle entre le serveur et les clients.
