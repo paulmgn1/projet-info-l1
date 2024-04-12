@@ -1,1 +1,73 @@
+Pour créer une interface graphique (GUI) liée au serveur pour faciliter l'envoi de messages aux utilisateurs, vous pouvez utiliser des bibliothèques GUI comme Tkinter pour Python. Voici comment vous pouvez procéder :
+1. Installer Tkinter (si ce n'est pas déjà fait) :
 
+Tkinter est généralement inclus dans les installations standard de Python. Cependant, assurez-vous qu'il est installé en exécutant pip install tk.
+2. Concevoir l'interface utilisateur :
+
+Créez une interface utilisateur qui permettra aux utilisateurs de saisir des messages et de les envoyer au serveur. Vous pouvez inclure des zones de texte pour afficher les messages reçus et une zone de saisie pour écrire de nouveaux messages.
+3. Intégrer la logique du client :
+
+Dans votre interface utilisateur, créez des fonctions ou des méthodes qui seront déclenchées lorsque l'utilisateur interagit avec les éléments de l'interface, comme un bouton "Envoyer". Dans ces fonctions, utilisez les sockets pour envoyer les messages saisis par l'utilisateur au serveur.
+4. Afficher les messages reçus :
+
+Lorsque le serveur envoie des messages aux clients, mettez à jour l'interface utilisateur pour afficher ces messages dans une zone de texte dédiée.
+5. Fermer la connexion :
+
+Assurez-vous d'implémenter une fonctionnalité pour fermer correctement la connexion avec le serveur lorsque l'utilisateur ferme l'application GUI.
+Exemple :
+
+Voici un exemple simplifié de code Python utilisant Tkinter pour créer une interface utilisateur permettant à l'utilisateur d'envoyer des messages au serveur :
+
+import tkinter as tk
+import socket
+
+def send_message():
+    message = entry_message.get()
+    client_socket.send(message.encode('utf-8'))
+    entry_message.delete(0, tk.END)
+
+def receive_message():
+    while True:
+        data = client_socket.recv(1024).decode('utf-8')
+        text_messages.insert(tk.END, data)
+
+# Adresse et port du serveur
+SERVER_HOST = '127.0.0.1'
+SERVER_PORT = 55555
+
+# Créer un socket client
+client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+client_socket.connect((SERVER_HOST, SERVER_PORT))
+
+# Créer une interface utilisateur
+root = tk.Tk()
+root.title("Chat App")
+
+# Zone de texte pour afficher les messages
+text_messages = tk.Text(root)
+text_messages.pack()
+
+# Zone de saisie pour écrire un nouveau message
+entry_message = tk.Entry(root)
+entry_message.pack()
+
+# Bouton pour envoyer un message
+button_send = tk.Button(root, text="Envoyer", command=send_message)
+button_send.pack()
+
+# Démarrer un thread pour recevoir les messages du serveur en arrière-plan
+receive_thread = threading.Thread(target=receive_message, daemon=True)
+receive_thread.start()
+
+# Fonction pour fermer la connexion lorsque l'application se ferme
+def close_connection():
+    client_socket.close()
+    root.destroy()
+
+root.protocol("WM_DELETE_WINDOW", close_connection)
+
+# Lancer l'interface utilisateur
+root.mainloop()
+
+Assurez-vous d'adapter cet exemple à vos besoins spécifiques et d'inclure
+la logique nécessaire pour gérer la communication avec le serveur, ainsi que pour fermer correctement la connexion lorsque l'application GUI est fermée.
