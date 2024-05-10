@@ -10,7 +10,7 @@ class ClientGUI:
         self.master = master
         master.title("Client Chat")
 
-        self.text_area = tk.Text(master, state='disabled')
+        self.text_area = tk.Text(master, state='disabled', bg="red")
         self.text_area.pack()
 
         self.entry = tk.Entry(master)
