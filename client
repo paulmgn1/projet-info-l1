@@ -1,1 +1,67 @@
+import socket
+import threading
+from Crypto.Cipher import AES
+from Crypto.Random import get_random_bytes
+from Crypto.Util.Padding import pad, unpad
+
+print("Client démarré")
+
+SERVER_HOST = '127.0.0.1'  # Adresse IP du serveur
+SERVER_PORT = 55555         # Port du serveur
+KEY = b'Sixteen byte key'   # Clé de chiffrement
+
+def encrypt_message(message, key):
+    iv = get_random_bytes(AES.block_size)
+    cipher = AES.new(key, AES.MODE_CBC, iv)
+    ciphertext = cipher.encrypt(pad(message.encode(), AES.block_size))
+    return iv + ciphertext
+
+def decrypt_message(encrypted_message, key):
+    iv = encrypted_message[:AES.block_size]
+    ciphertext = encrypted_message[AES.block_size:]
+    cipher = AES.new(key, AES.MODE_CBC, iv)
+    decrypted_message = unpad(cipher.decrypt(ciphertext), AES.block_size)
+    return decrypted_message.decode()
+
+def receive_messages(client_socket):
+    try:
+        while True:
+            data = client_socket.recv(1024)
+            decrypted_data = decrypt_message(data, KEY)
+            print("\nReceived from server:", decrypted_data)
+    except:
+        pass
+
+def main():
+    client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    client_socket.connect((SERVER_HOST, SERVER_PORT))
+
+    # Démarrer un thread pour la réception de messages
+    receive_thread = threading.Thread(target=receive_messages, args=(client_socket,))
+    receive_thread.start()
+
+    try:
+        while True:
+            # Demander à l'utilisateur d'entrer un message
+            message = input("Votre message ('exit' pour quitter) : ")
+
+            # Chiffrer le message
+            encrypted_message = encrypt_message(message, KEY)
+
+            # Envoyer le message chiffré au serveur
+            client_socket.send(encrypted_message)
+
+            # Quitter la boucle si le message est 'exit'
+            if message.lower() == 'exit':
+                break
+
+    except KeyboardInterrupt:
+        print("Arrêt du client.")
+
+    finally:
+        # Fermer la connexion avec le serveur
+        client_socket.close()
+
+if __name__ == "__main__":
+    main()
 
