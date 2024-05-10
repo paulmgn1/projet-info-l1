@@ -59,3 +59,121 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+import tkinter as tk
+import socket
+import threading
+from Crypto.Cipher import AES
+
+SERVER_HOST = '127.0.0.1'  # Adresse IP du serveur
+SERVER_PORT = 55555         # Port du serveur
+
+class ClientGUI:
+    def __init__(self, master):
+        self.master = master
+        master.title("Client Chat")
+
+        self.text_area = tk.Text(master, state='disabled')
+        self.text_area.pack()
+
+        self.entry = tk.Entry(master)
+        self.entry.pack()
+
+        self.send_button = tk.Button(master, text="Envoyer", command=self.send_message)
+        self.send_button.pack()
+
+        self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.client_socket.connect((SERVER_HOST, SERVER_PORT))
+
+        self.receive_thread = threading.Thread(target=self.receive_messages)
+        self.receive_thread.start()
+
+    def receive_messages(self):
+        while True:
+            try:
+                data = self.client_socket.recv(1024)
+                if data:
+                    decrypted_data = self.decrypt_message(data)
+                    self.text_area.configure(state='normal')
+                    self.text_area.insert(tk.END, decrypted_data + '\n')
+                    self.text_area.configure(state='disabled')
+                    self.text_area.see(tk.END)
+            except ConnectionAbortedError:
+                break
+
+    def send_message(self):
+        message = self.entry.get()
+        encrypted_message = self.encrypt_message(message)
+        self.client_socket.send(encrypted_message)
+        self.entry.delete(0, tk.END)
+        if message.lower() == 'exit':
+            self.client_socket.close()
+            self.master.destroy()
+
+    def encrypt_message(self, message):
+        cipher = AES.new(b'This is a key123', AES.MODE_EAX)
+        nonce = cipher.nonce
+        ciphertext, tag = cipher.encrypt_and_digest(message.encode('utf-8'))
+        return nonce + ciphertext + tag
+
+    def decrypt_message(self, encrypted_data):
+        nonce = encrypted_data[:16]
+        ciphertext = encrypted_data[16:-16]
+        tag = encrypted_data[-16:]
+        cipher = AES.new(b'This is a key123', AES.MODE_EAX, nonce)
+        decrypted_data = cipher.decrypt_and_verify(ciphertext, tag)
+        return decrypted_data.decode('utf-8')
+
+def main():
+    root = tk.Tk()
+    client_gui = ClientGUI(root)
+    root.mainloop()
+
+if __name__ == "__main__":
+    main()
+
