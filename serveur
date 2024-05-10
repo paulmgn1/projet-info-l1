@@ -37,11 +37,14 @@ def main():
     server_socket.bind((HOST, PORT))
 
     # Écouter les connexions entrantes
-    server_socket.listen()
+#    server_socket.listen()
 
-    print(f"[LISTENING] Server is listening on {HOST}:{PORT}")
+#    print(f"[LISTENING] Server is listening on {HOST}:{PORT}")
 
     while True:
+        server_socket.listen()
+
+        print(f"[LISTENING] Server is listening on {HOST}:{PORT}")
         # Accepter une nouvelle connexion
         client_socket, client_address = server_socket.accept()
 
