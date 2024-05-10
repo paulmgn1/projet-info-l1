@@ -1,82 +1,53 @@
 import tkinter as tk
 import socket
 import threading
-from Crypto.Cipher import AES
-from Crypto.Random import get_random_bytes
-from Crypto.Util.Padding import pad, unpad
-
-print("Client démarré")
 
 SERVER_HOST = '127.0.0.1'  # Adresse IP du serveur
 SERVER_PORT = 55555         # Port du serveur
-KEY = b'Sixteen byte key'   # Clé de chiffrement
 
-def encrypt_message(message, key):
-    iv = get_random_bytes(AES.block_size)
-    cipher = AES.new(key, AES.MODE_CBC, iv)
-    ciphertext = cipher.encrypt(pad(message.encode(), AES.block_size))
-    return iv + ciphertext
+class ClientGUI:
+    def __init__(self, master):
+        self.master = master
+        master.title("Client Chat")
 
-def decrypt_message(encrypted_message, key):
-    iv = encrypted_message[:AES.block_size]
-    ciphertext = encrypted_message[AES.block_size:]
-    cipher = AES.new(key, AES.MODE_CBC, iv)
-    decrypted_message = unpad(cipher.decrypt(ciphertext), AES.block_size)
-    return decrypted_message.decode()
+        self.text_area = tk.Text(master, state='disabled')
+        self.text_area.pack()
 
-def receive_messages(client_socket, text_messages):
-    try:
+        self.entry = tk.Entry(master)
+        self.entry.pack()
+
+        self.send_button = tk.Button(master, text="Envoyer", command=self.send_message)
+        self.send_button.pack()
+
+        self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.client_socket.connect((SERVER_HOST, SERVER_PORT))
+
+        self.receive_thread = threading.Thread(target=self.receive_messages)
+        self.receive_thread.start()
+
+    def receive_messages(self):
         while True:
-            data = client_socket.recv(1024)
-            decrypted_data = decrypt_message(data, KEY)
-            text_messages.insert(tk.END, "\nServer: " + decrypted_data)
-    except:
-        pass
+            try:
+                data = self.client_socket.recv(1024).decode('utf-8')
+                if data:
+                    self.text_area.configure(state='normal')
+                    self.text_area.insert(tk.END, data + '\n')
+                    self.text_area.configure(state='disabled')
+                    self.text_area.see(tk.END)
+            except ConnectionAbortedError:
+                break
 
-def send_message(client_socket, text_input):
-    try:
-        message = text_input.get("1.0", tk.END).strip()
-        if message:
-            encrypted_message = encrypt_message(message, KEY)
-            client_socket.send(encrypted_message)
-            if message.lower() == 'exit':
-                client_socket.close()
-                root.quit()
-    except Exception as e:
-        print("Erreur lors de l'envoi du message:", e)
+    def send_message(self):
+        message = self.entry.get()
+        self.client_socket.send(message.encode('utf-8'))
+        self.entry.delete(0, tk.END)
+        if message.lower() == 'exit':
+            self.client_socket.close()
+            self.master.destroy()
 
 def main():
-    client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    client_socket.connect((SERVER_HOST, SERVER_PORT))
-
-    # Créer la fenêtre principale
     root = tk.Tk()
-    root.title("Client Chat")
-
-    # Zone de texte pour afficher les messages
-    text_messages = tk.Text(root)
-    text_messages.pack()
-
-    # Zone de texte pour que l'utilisateur saisisse les messages
-    text_input = tk.Text(root, height=5)
-    text_input.pack()
-
-    # Bouton d'envoi de message
-    button_send = tk.Button(root, text="Envoyer", command=lambda: send_message(client_socket, text_input))
-    button_send.pack()
-
-    # Démarrer un thread pour la réception de messages
-    receive_thread = threading.Thread(target=receive_messages, args=(client_socket, text_messages))
-    receive_thread.start()
-
-    # Fonction pour fermer la connexion lorsque l'application se ferme
-    def close_connection():
-        client_socket.close()
-        root.quit()
-
-    root.protocol("WM_DELETE_WINDOW", close_connection)
-
-    # Lancer l'interface utilisateur
+    client_gui = ClientGUI(root)
     root.mainloop()
 
 if __name__ == "__main__":
